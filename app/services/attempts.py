@@ -9,6 +9,7 @@ from app.config import get_settings
 from app.crud.unit_of_work import UnitOfWork, get_unit_of_work
 from app.models.attempt import Attempt
 from app.models.exercise_attempt import ExerciseAttempt
+from app.models.exercise_attempt_phoneme_link import ExerciseAttemptPhonemeLink
 from app.models.recording import Recording
 from app.models.user import User
 from app.models.word import Word
@@ -39,7 +40,6 @@ class AttemptService:
         with open(wav_file, "rb") as f:
             files = {"audio_file": f}
 
-            print(get_settings().MODEL_API_URL)
             model_response = requests.post(f"{get_settings().MODEL_API_URL}/api/v1/eng/infer_phonemes", files=files)
 
         model_response.raise_for_status()
@@ -55,28 +55,34 @@ class AttemptService:
         aligned_phonemes, score = PronunciationService(self._uow).evaluate_pronunciation(word, inferred_phoneme_strings)
         return aligned_phonemes, score
 
+        return aligned_phonemes, score
+
     def save_to_s3(self, wav_file: str) -> str:
         s3_key = upload_wav_to_s3(wav_file)
         os.remove(wav_file)
         return s3_key
 
+
     def create_attempt_and_recording(self, user: User, score: int, s3_key: str) -> Tuple[int, int]:
         attempt = self._uow.attempts.upsert(Attempt(user_id=user.id, score=score))
         recording = self._uow.recordings.upsert(Recording(attempt_id=attempt.id, s3_key=s3_key))
         return attempt.id, recording.id
-    
+
     async def post_exercise_attempt(
-            self, 
-            audio_file: UploadFile, 
-            exercise_id: int, 
-            uow: UnitOfWork = Depends(get_unit_of_work), 
-            user: User = Depends(current_active_user)
-            ) -> AttemptResponse:
+        self,
+        audio_file: UploadFile,
+        exercise_id: int,
+        uow: UnitOfWork = Depends(get_unit_of_work),
+        user: User = Depends(current_active_user),
+    ) -> AttemptResponse:
         exercise = uow.exercises.find_by_id(id=exercise_id)
         if not exercise:
             raise HTTPException(status_code=404, detail="Exercise not found")
 
+
         # 1. Send .wav file to model for response
+        wav_file = await self.create_wav_file(audio_file)
+        aligned_phonemes, score = self.get_attempt_feedback(wav_file, exercise.word)
         wav_file = await self.create_wav_file(audio_file)
         aligned_phonemes, score = self.get_attempt_feedback(wav_file, exercise.word)
         user_service = UserService(uow)
@@ -90,14 +96,30 @@ class AttemptService:
         uow.exercise_attempts.upsert(ExerciseAttempt(id=attempt_id, user_id=user.id, exercise_id=exercise_id))
         uow.commit()
 
+        # 3b. Link aligned phonemes to attempt
+        for index, aligned in enumerate(aligned_phonemes):
+            expected, actual = aligned
+            uow.exercise_attempt_phonemes.upsert(
+                ExerciseAttemptPhonemeLink(
+                    exercise_attempt_id=attempt_id,
+                    expected_phoneme_id=expected.id if expected else None,
+                    actual_phoneme_id=actual.id if actual else None,
+                    index=index
+                )
+            )
+            uow.commit()
+
         # 4. Generate recap lesson if this is the last exercise of the last lesson
         unit_service = UnitService(uow)
         unit = uow.basic_lessons.get_by_id(exercise.lesson_id).unit
-        if unit_service._is_completed_by(unit, user) and uow.recap_lessons.find_recap_by_user_id_and_unit_id(user.id, unit.id) is None:
+        if (
+            unit_service._is_completed_by(unit, user)
+            and uow.recap_lessons.find_recap_by_user_id_and_unit_id(user.id, unit.id) is None
+        ):
             unit_service.generate_recap_lesson(unit, user)
 
         return AttemptResponse(recording_id=recording_id, score=score, phonemes=aligned_phonemes, xp_gain=xp_gain)
-    
+
     async def post_word_of_day_attempt(
         self,
         audio_file: UploadFile,
@@ -108,7 +130,7 @@ class AttemptService:
         word_of_day = uow.word_of_day.find_by_id(id=word_of_day_id)
         if not word_of_day:
             raise HTTPException(status_code=404, detail="Word of the day not found")
-        
+
         wav_file = await self.create_wav_file(audio_file)
         aligned_phonemes, score = self.get_attempt_feedback(wav_file, word_of_day.word)
         user_service = UserService(uow)

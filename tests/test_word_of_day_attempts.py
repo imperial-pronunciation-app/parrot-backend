@@ -60,7 +60,6 @@ def test_word_of_day_attempts(
         recording_response = auth_client.post("/api/v1/word_of_day", files=files)
     assert recording_response.status_code == 200
     data = recording_response.json()
-    print(f"\nThe data is: {data}")
     assert data["score"] == similarity
     assert data["xp_gain"] == 1.5 * similarity
     assert data["recording_id"] == recording_id

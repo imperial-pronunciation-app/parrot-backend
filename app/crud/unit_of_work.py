@@ -6,6 +6,7 @@ from sqlmodel import Session
 
 from app.crud.attempts_repository import AttemptRepository
 from app.crud.basic_lesson_repository import BasicLessonRepository
+from app.crud.exercise_attempt_phoneme_repository import ExerciseAttemptPhonemeRepository
 from app.crud.exercise_attempt_repository import ExerciseAttemptRepository
 from app.crud.exercise_repository import ExerciseRepository
 from app.crud.leaderboard_user_repository import LeaderboardUserRepository
@@ -38,7 +39,7 @@ class UnitOfWork:
         self.exercise_attempts = ExerciseAttemptRepository(self._session)
         self.word_of_day_attempts = WordOfDayAttemptRepository(self._session)
         self.word_of_day = WordOfDayRepository(self._session)
-        self.word_of_day_attempts = WordOfDayAttemptRepository(self._session)
+        self.exercise_attempt_phonemes = ExerciseAttemptPhonemeRepository(self._session)
 
     def __enter__(self) -> Self:
         return self
