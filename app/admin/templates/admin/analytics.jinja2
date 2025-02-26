@@ -1,0 +1,76 @@
+{% extends 'admin/master.jinja2' %}
+
+{% block head %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .analytics-container {
+        padding: 20px;
+        max-width: 1200px;
+        margin-left: 20%;  
+        position: relative; 
+        z-index: 1;      
+    }
+    
+    .chart-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        width: 100%;       
+        position: relative; 
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-container">
+    <div class="chart-container">
+        <canvas id="endpointHistogram"></canvas>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('endpointHistogram').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {{ chart_data | tojson | safe }},
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'API Endpoint Analytics'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            if (context.datasetIndex === 0) {
+                                return `Calls: ${context.raw}`;
+                            }
+                            return `Avg Response Time: ${context.raw}ms`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Endpoints'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Number of Calls'
+                    },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

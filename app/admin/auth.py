@@ -7,7 +7,6 @@ from app.config import get_settings
 
 # Define authentication logic
 class AdminAuth(AuthenticationBackend):
-
     def __init__(self) -> None:
         super().__init__(get_settings().USER_MANAGER_SECRET)
         self._admin_username = get_settings().ADMIN_USERNAME
@@ -18,7 +17,12 @@ class AdminAuth(AuthenticationBackend):
         form = await request.form()
         username = form.get("username")
         password = form.get("password")
-        if username == self._admin_username and self._password_helper.verify_and_update(password, self._admin_password_hash)[0]:
+        if (
+            username == self._admin_username
+            and self._password_helper.verify_and_update(password, f"{self._admin_password_hash.strip('’').strip('‘')}")[
+                0
+            ]
+        ):
             request.session.update({"authenticated": True})
             return True
         return False

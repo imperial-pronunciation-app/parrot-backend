@@ -1,4 +1,6 @@
+from app.admin.analytics import EndpointAnalyticsAdmin
 from app.admin.attempt_admin import AttemptAdmin
+from app.admin.endpoint_analytics import AnalyticsDashboard
 
 from .leaderboard_user_link_admin import LeaderboardUserLinkAdmin
 from .phoneme_admin import PhonemeAdmin
@@ -18,4 +20,6 @@ views = sorted([
     WordAdmin,
     WordOfDayAdmin,
     WordPhonemeLinkAdmin,
+    EndpointAnalyticsAdmin,
+    AnalyticsDashboard,
 ], key=lambda x: x.__name__)

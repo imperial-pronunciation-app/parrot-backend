@@ -5,6 +5,7 @@ from fastapi_users.password import PasswordHelper
 from sqlmodel import Session, SQLModel, text
 
 from app.database import engine
+from app.models.analytics import EndpointAnalytics  # noqa: F401
 from app.models.attempt import Attempt  # noqa: F401
 from app.models.basic_lesson import BasicLesson  # noqa: F401
 from app.models.exercise import Exercise
