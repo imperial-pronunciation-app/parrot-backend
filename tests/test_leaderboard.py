@@ -45,26 +45,28 @@ def test_reset_leaderboard(test_user: User, auth_client: TestClient, uow: UnitOf
     assert response.status_code == 200
     json = response.json()
     assert json["league"] == League.SILVER # Promotion
-    assert json["leaders"] == json["user_position"] == [{"rank": 1, "username": test_user.email, "xp": expected_xp}]
+    assert json["leaders"] == json["user_position"] == [{"id": test_user.id, "rank": 1, "username": test_user.email, "xp": expected_xp}]
 
 
 def test_get_leaderboard(test_user: User, auth_client: TestClient, sample_leaderboard_users_bronze: List[LeaderboardUserLink]) -> None:
     # When
     response = auth_client.get("/api/v1/leaderboard/global")
-
     # Then
     assert response.status_code == 200
     json = response.json()
     assert json["league"] == League.BRONZE
+
+    email_to_id = {link.user.email: link.user_id for link in sample_leaderboard_users_bronze}
+
     assert json["leaders"] == [
-        {"rank": 1, "username": TEST_EMAILS[0], "xp": TEST_XPS[0]},
-        {"rank": 2, "username": TEST_EMAILS[1], "xp": TEST_XPS[1]},
-        {"rank": 3, "username": TEST_EMAILS[2], "xp": TEST_XPS[2]},
+        {"id": email_to_id[TEST_EMAILS[0]], "rank": 1, "username": TEST_EMAILS[0], "xp": TEST_XPS[0]},
+        {"id": email_to_id[TEST_EMAILS[1]], "rank": 2, "username": TEST_EMAILS[1], "xp": TEST_XPS[1]},
+        {"id": email_to_id[TEST_EMAILS[2]], "rank": 3, "username": TEST_EMAILS[2], "xp": TEST_XPS[2]},
     ]
     assert json["user_position"] == [
-        {"rank": 4, "username": TEST_EMAILS[3], "xp": TEST_XPS[3]},
-        {"rank": 5, "username": TEST_EMAILS[4], "xp": TEST_XPS[4]},
-        {"rank": 6, "username": test_user.email, "xp": 0},
+        {"id": email_to_id[TEST_EMAILS[3]], "rank": 4, "username": TEST_EMAILS[3], "xp": TEST_XPS[3]},
+        {"id": email_to_id[TEST_EMAILS[4]], "rank": 5, "username": TEST_EMAILS[4], "xp": TEST_XPS[4]},
+        {"id": test_user.id, "rank": 6, "username": test_user.email, "xp": 0},
     ]
 
 
