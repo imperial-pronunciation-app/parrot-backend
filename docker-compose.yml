@@ -27,9 +27,7 @@ services:
       - parrot-network
   
   cron:
-    build:
-      context: .
-      dockerfile: Dockerfile.cron
+    image: euanoturner/pronunciation-app:${IMAGE_TAG}
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     depends_on:
