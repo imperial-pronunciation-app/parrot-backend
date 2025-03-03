@@ -2,6 +2,7 @@ from app.admin.analytics import EndpointAnalyticsAdmin
 from app.admin.attempt_admin import AttemptAdmin
 from app.admin.endpoint_analytics import AnalyticsDashboard
 from app.admin.exercise_analytics import ExerciseAnalyticsDashboard
+from app.admin.exercise_difficulty_analytics import ExerciseDifficultyDashboard
 
 from .leaderboard_user_link_admin import LeaderboardUserLinkAdmin
 from .phoneme_admin import PhonemeAdmin
@@ -12,19 +13,17 @@ from .word_of_day_admin import WordOfDayAdmin
 from .word_phoneme_link_admin import WordPhonemeLinkAdmin
 
 
-views = sorted(
-    [
-        LeaderboardUserLinkAdmin,
-        PhonemeAdmin,
-        AttemptAdmin,
-        RecordingAdmin,
-        UserAdmin,
-        WordAdmin,
-        WordOfDayAdmin,
-        WordPhonemeLinkAdmin,
-        EndpointAnalyticsAdmin,
-        AnalyticsDashboard,
-        ExerciseAnalyticsDashboard,
-    ],
-    key=lambda x: x.__name__,
-)
+views = [
+    AnalyticsDashboard,
+    ExerciseAnalyticsDashboard,
+    ExerciseDifficultyDashboard,
+    AttemptAdmin,
+    LeaderboardUserLinkAdmin,
+    PhonemeAdmin,
+    RecordingAdmin,
+    UserAdmin,
+    WordAdmin,
+    WordOfDayAdmin,
+    WordPhonemeLinkAdmin,
+    EndpointAnalyticsAdmin,
+]

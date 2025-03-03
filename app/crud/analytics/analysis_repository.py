@@ -4,6 +4,9 @@ from sqlmodel import Session, col, func, select
 
 from app.database import engine
 from app.models.analytics.analytics import EndpointAnalytics
+from app.models.attempt import Attempt
+from app.models.exercise import Exercise
+from app.models.exercise_attempt import ExerciseAttempt
 
 
 class AnalyticsRepository:
@@ -38,3 +41,19 @@ class AnalyticsRepository:
 
             result = session.exec(stmt).fetchall()
             return result
+
+    def get_exercise_difficulty_analytics(self) -> Sequence[Tuple[int, float, int]]:
+        with Session(engine) as session:
+            stmt = (
+                select(
+                    Exercise.id,
+                    func.avg(Attempt.score).label("average_score"),
+                    func.count(col(Attempt.id)).label("attempt_count"),
+                )
+                .join(ExerciseAttempt, ExerciseAttempt.exercise_id == Exercise.id)  # type: ignore[arg-type]
+                .join(Attempt, Attempt.id == ExerciseAttempt.id)  # type: ignore[arg-type]
+                .group_by(col(Exercise.id))
+                .order_by("average_score")  # Order by difficulty (lower scores first)
+            )
+
+            return session.exec(stmt).fetchall()
