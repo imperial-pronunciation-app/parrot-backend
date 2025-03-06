@@ -3,16 +3,95 @@
   "is_default": false,
   "word_of_day": "computador",
   "words": {
-    "computador": ["k", "o", "m", "p", "u", "t̪", "a", "d̪", "o", "ʁ"]
+    "computador": ["k", "o", "m", "p", "u", "t̪", "a", "d̪", "o", "ʁ"],
+    "bom": ["b", "ɔ", "m"],
+    "casa": ["k", "a", "z", "a"],
+    "futebol": ["f", "u", "t̪", "ɪ̯", "b", "ɔ", "ɫ"],
+    "gato": ["ɡ", "a", "t̪", "u"],
+    "pão": ["p", "ɐ̃", "ʊ̯"],
+    "chuva": ["ʃ", "u", "v", "a"],
+    "janela": ["ʒ", "a", "n", "ɛ", "l", "a"],
+    "rato": ["ʁ", "a", "t̪", "u"],
+    "telefone": ["t̪", "ɛ", "l", "ə", "f", "ɔ", "n", "ɪ̯"],
+    "bola": ["b", "ɔ", "l", "a"],
+    "verde": ["v", "ɛ", "ʁ", "d̪", "ɪ̯"],
+    "mesa": ["m", "e", "z", "a"],
+    "tigre": ["t̪", "i", "ɡ", "ʁ", "e"],
+    "fogo": ["f", "o", "ɡ", "u"],
+    "noite": ["n", "ɔ", "ɪ̯", "t̪", "e"],
+    "dado": ["d̪", "a", "d̪", "o"],
+    "sol": ["s", "ɔ", "ɫ"],
+    "carro": ["k", "a", "ʁ", "u"],
+    "praia": ["p", "ɾ", "a", "ɪ̯", "a"],
+    "frio": ["f", "ɾ", "i", "u"],
+    "quente": ["k", "ɛ", "n", "t̪", "e"],
+    "peixe": ["p", "e", "ɪ̯", "ʃ", "e"],
+    "doce": ["d̪", "o", "s", "e"]
   },
   "units": [
     {
-      "name": "Learning Portuguese",
-      "description": "Computing Vocabulary",
+      "name": "Foundations of Portuguese Pronunciation",
+      "description": "Start with basic phonemes in common words.",
       "lessons": [
         {
-          "title": "One word challenge!",
-          "exercises": ["computador"]
+          "title": "Simple Sounds",
+          "exercises": ["bom", "casa", "gato", "bola"]
+        },
+        {
+          "title": "Nasal & Open Vowels",
+          "exercises": ["pão", "futebol", "mesa", "telefone"]
+        },
+        {
+          "title": "Common Fricatives",
+          "exercises": ["chuva", "janela", "verde", "fogo"]
+        },
+        {
+          "title": "Short & Sharp Words",
+          "exercises": ["rato", "tigre", "dado", "sol"]
+        }
+      ]
+    },
+    {
+      "name": "Mastering Key Consonants & Vowels",
+      "description": "Strengthen pronunciation with essential phoneme combinations.",
+      "lessons": [
+        {
+          "title": "The 'R' Sound",
+          "exercises": ["rato", "tigre", "verde", "computador"]
+        },
+        {
+          "title": "The 'T' and 'D' Sounds",
+          "exercises": ["telefone", "computador", "dado", "tigre"]
+        },
+        {
+          "title": "The Nasal Challenge",
+          "exercises": ["pão", "bom", "futebol", "noite"]
+        },
+        {
+          "title": "Vowel Mastery",
+          "exercises": ["casa", "mesa", "bola", "sol"]
+        }
+      ]
+    },
+    {
+      "name": "Everyday Portuguese",
+      "description": "Practice pronunciation in real-life scenarios.",
+      "lessons": [
+        {
+          "title": "At Home",
+          "exercises": ["casa", "janela", "mesa", "telefone"]
+        },
+        {
+          "title": "At the Beach",
+          "exercises": ["praia", "sol", "peixe", "fogo"]
+        },
+        {
+          "title": "Weather & Temperature",
+          "exercises": ["chuva", "frio", "quente", "noite"]
+        },
+        {
+          "title": "Getting Around",
+          "exercises": ["carro", "computador", "telefone", "verde"]
         }
       ]
     }
