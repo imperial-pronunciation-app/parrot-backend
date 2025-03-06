@@ -22,6 +22,7 @@ from app.services.exercise import ExerciseService
 from app.services.pronunciation import PronunciationService
 from app.services.unit import UnitService
 from app.services.user import UserService
+from app.services.word_of_day import WordOfDayService
 from app.users import current_active_user
 from app.utils.s3 import upload_wav_to_s3
 
@@ -101,8 +102,9 @@ class AttemptService:
             )
         
         aligned_phonemes, score = feedback
+        attempt_xp = exercise_service.get_xp_gain(exercise=exercise, user_id=user.id, score=score)
         user_service = UserService(uow)
-        xp_gain, streak_boost = user_service.update_xp_with_boost(user, score)
+        xp_gain, streak_boost = user_service.update_xp_with_boost(user, attempt_xp)
 
         # 2. Save .wav file to s3
         s3_key = self.save_to_s3(wav_file)
@@ -170,8 +172,9 @@ class AttemptService:
             )
         
         aligned_phonemes, score = feedback
+        attempt_xp = WordOfDayService(self._uow).get_xp_gain(word_of_day=word_of_day, user_id=user.id, score=score)
         user_service = UserService(uow)
-        xp_gain, streak_boost = user_service.update_xp_with_boost(user, score)
+        xp_gain, streak_boost = user_service.update_xp_with_boost(user, attempt_xp)
         s3_key = self.save_to_s3(wav_file)
 
         attempt_id, recording_id = self.create_attempt_and_recording(user, score, s3_key)

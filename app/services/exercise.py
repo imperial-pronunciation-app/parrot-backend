@@ -23,3 +23,11 @@ class ExerciseService:
             return False
         best_attempt = max(exercise_attempts, key=lambda exercise_attempt: exercise_attempt.attempt.score)
         return best_attempt.attempt.score >= 50 or len(exercise_attempts) > 1
+    
+    def get_xp_gain(self, exercise: Exercise, user_id: int, score: int) -> int:
+        max_score = self._uow.exercise_attempts.max_score_for_exercise(
+            user_id=user_id,
+            exercise_id=exercise.id
+        )
+
+        return max(0, score - max_score)
