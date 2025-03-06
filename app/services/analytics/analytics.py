@@ -154,7 +154,8 @@ class AnalyticsService:
         for p in phonemes_ids:
             for phoneme_id, ipa, respelling in phonemes_mapping:
                 if p == phoneme_id:
-                    phonemes.append(f"{ipa} ({respelling})")
+                    phonemes.append(f"{ipa}")
+                    break  # Break out of the inner loop as we found the phoneme
 
         correct = [phonemes_dict[p]["correct"] for p in phonemes_ids]
         incorrect = [phonemes_dict[p]["incorrect"] for p in phonemes_ids]
