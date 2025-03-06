@@ -2,6 +2,7 @@ from typing import Any, Sequence, Tuple
 
 from sqlmodel import Session, col, func, select
 
+from app.crud.unit_of_work import UnitOfWork
 from app.database import engine
 from app.models.analytics.analytics import EndpointAnalytics
 from app.models.attempt import Attempt
@@ -9,7 +10,6 @@ from app.models.exercise import Exercise
 from app.models.exercise_attempt import ExerciseAttempt
 from app.models.exercise_attempt_phoneme_link import ExerciseAttemptPhonemeLink
 from app.models.phoneme import Phoneme
-from app.models.word import Word
 
 
 class AnalyticsRepository:
@@ -61,13 +61,9 @@ class AnalyticsRepository:
             return session.exec(stmt).fetchall()
 
     def get_exercise_words(self) -> Sequence[Tuple[int, str]]:
-        with Session(engine) as session:
-            stmt = select(
-                Exercise.id,
-                Word.text,
-            ).join(Word, col(Word.id) == col(Exercise.word_id))
-
-            return session.exec(stmt).fetchall()
+        with Session(engine) as session, UnitOfWork(session) as uow:
+            res = uow.exercises.all()
+            return [(exercise.id, exercise.word.text) for exercise in res]
 
     def get_phoneme_difficulty_analytics(self) -> Sequence[Tuple[int | None, int | None]]:
         with Session(engine) as session:
