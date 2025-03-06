@@ -28,6 +28,7 @@ def test_word_of_day_attempts(
         "xp_gain": xp_gain,
         "recording_id": recording_id,
         "phonemes": [],
+        "xp_streak_boost": None
     }
 
     wav_file_path = f"tests/assets/{test_word.text}.wav"

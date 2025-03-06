@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from typing import Tuple
 
 from app.crud.unit_of_work import UnitOfWork
 from app.models.leaderboard_user_link import LeaderboardUserLink
@@ -18,14 +19,15 @@ class UserService:
         login_streak_boost_factor: float = 0.1,
         login_streak_boost_max: float = 0.5,
         new_user_boost_factor: float = 1.5
-    ) -> int:
+    ) -> Tuple[int, int]:
         """Returns the XP gained including boosts"""
         assert lesson_xp >= 0
         xp_gain_float = float(lesson_xp)
-
-        xp_gain_float *= 1 + min((user.login_streak - 1) * login_streak_boost_factor, login_streak_boost_max)
+        login_streak_boost = xp_gain_float * min((user.login_streak - 1) * login_streak_boost_factor, login_streak_boost_max)
         if user.new_user:
             xp_gain_float *= new_user_boost_factor
+        original_xp_gain = xp_gain_float
+        xp_gain_float += login_streak_boost
         xp_gain = int(xp_gain_float)
 
         entry = user.leaderboard_entry
@@ -35,7 +37,7 @@ class UserService:
         self._uow.users.upsert(user)
         self._uow.commit()
         LRedis.update_xp(entry.league, entry.id, xp_gain)
-        return xp_gain
+        return int(original_xp_gain), int(login_streak_boost)
 
     def update_xp(self, user: User, xp_gain: int) -> LeaderboardUserLink:
         """Should be used for testing only, as it does not account for boosts, e.g. streaks"""

@@ -11,6 +11,7 @@ class AttemptResponse(BaseModel):
     score: Optional[int]
     phonemes: Optional[AlignedPhonemes]
     xp_gain: Optional[int]
+    xp_streak_boost: Optional[int]
 
 class ExerciseAttemptResponse(AttemptResponse):
-    exercise_is_completed: Optional[bool]
+    exercise_is_completed: bool

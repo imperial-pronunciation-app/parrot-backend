@@ -1,5 +1,6 @@
 from typing import List, Optional, Sequence, Tuple
 
+from sqlalchemy import Select
 from sqlmodel import Session, col, func, select
 
 from app.crud.generic_repository import GenericRepository
@@ -46,6 +47,20 @@ class ExerciseAttemptRepository(GenericRepository[ExerciseAttempt]):
         
         return phoneme_pairs
     
+    def max_score_for_exercise(self, user_id: int, exercise_id: int) -> int:
+        stmt: Select = (
+            select(func.max(Attempt.score))
+            .select_from(ExerciseAttempt)
+            .join(Attempt)
+            .where(
+                Attempt.user_id == user_id,
+                ExerciseAttempt.exercise_id == exercise_id
+            )
+        )
+
+        result = self._session.execute(stmt).scalar()
+        return result if result is not None else 0
+
     def average_max_score_for_lesson(self, user_id: int, lesson_id: int) -> float:
         subquery = (
             select(

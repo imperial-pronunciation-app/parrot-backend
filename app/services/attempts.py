@@ -22,6 +22,7 @@ from app.services.exercise import ExerciseService
 from app.services.pronunciation import PronunciationService
 from app.services.unit import UnitService
 from app.services.user import UserService
+from app.services.word_of_day import WordOfDayService
 from app.users import current_active_user
 from app.utils.s3 import upload_wav_to_s3
 
@@ -82,18 +83,28 @@ class AttemptService:
         exercise = uow.exercises.find_by_id(id=exercise_id)
         if not exercise:
             raise HTTPException(status_code=404, detail="Exercise not found")
-
+        
+        exercise_service = ExerciseService(uow)
 
         # 1. Send .wav file to model for response
         wav_file = await self.create_wav_file(audio_file)
         feedback = self.get_attempt_feedback(wav_file, exercise.word)
         if not feedback:
             os.remove(wav_file)
-            return ExerciseAttemptResponse(success=False, recording_id=None, score=None, phonemes=None, xp_gain=None, exercise_is_completed=None)
+            return ExerciseAttemptResponse(
+                success=False,
+                recording_id=None,
+                score=None,
+                phonemes=None,
+                xp_gain=None,
+                exercise_is_completed=exercise_service.is_completed_by(exercise, user),
+                xp_streak_boost=None
+            )
         
         aligned_phonemes, score = feedback
+        attempt_xp = exercise_service.get_xp_gain(exercise=exercise, user_id=user.id, score=score)
         user_service = UserService(uow)
-        xp_gain = user_service.update_xp_with_boost(user, score)
+        xp_gain, streak_boost = user_service.update_xp_with_boost(user, attempt_xp)
 
         # 2. Save .wav file to s3
         s3_key = self.save_to_s3(wav_file)
@@ -132,7 +143,8 @@ class AttemptService:
             score=score,
             phonemes=aligned_phonemes,
             xp_gain=xp_gain,
-            exercise_is_completed=ExerciseService(uow).is_completed_by(exercise, user)
+            exercise_is_completed=exercise_service.is_completed_by(exercise, user),
+            xp_streak_boost=streak_boost
         )
 
     async def post_word_of_day_attempt(
@@ -150,16 +162,30 @@ class AttemptService:
         feedback = self.get_attempt_feedback(wav_file, word_of_day.word)
         if feedback is None:
             os.remove(wav_file)
-            return AttemptResponse(success=False, recording_id=None, score=None, phonemes=None, xp_gain=None)
+            return AttemptResponse(
+                success=False,
+                recording_id=None,
+                score=None,
+                phonemes=None,
+                xp_gain=None,
+                xp_streak_boost=None
+            )
         
         aligned_phonemes, score = feedback
+        attempt_xp = WordOfDayService(self._uow).get_xp_gain(word_of_day=word_of_day, user_id=user.id, score=score)
         user_service = UserService(uow)
-        xp_gain = user_service.update_xp_with_boost(user, score)
-
+        xp_gain, streak_boost = user_service.update_xp_with_boost(user, attempt_xp)
         s3_key = self.save_to_s3(wav_file)
 
         attempt_id, recording_id = self.create_attempt_and_recording(user, score, s3_key)
         uow.word_of_day_attempts.upsert(WordOfDayAttempt(id=attempt_id, user_id=user.id, word_of_day_id=word_of_day_id))
         uow.commit()
 
-        return AttemptResponse(success=True, recording_id=recording_id, score=score, phonemes=aligned_phonemes, xp_gain=xp_gain)
+        return AttemptResponse(
+            success=True,
+            recording_id=recording_id,
+            score=score,
+            phonemes=aligned_phonemes,
+            xp_gain=xp_gain,
+            xp_streak_boost=streak_boost
+        )
