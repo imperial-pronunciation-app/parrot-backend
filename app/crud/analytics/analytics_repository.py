@@ -10,6 +10,7 @@ from app.models.exercise import Exercise
 from app.models.exercise_attempt import ExerciseAttempt
 from app.models.exercise_attempt_phoneme_link import ExerciseAttemptPhonemeLink
 from app.models.phoneme import Phoneme
+from app.models.phoneme_respelling import PhonemeRespelling
 
 
 class AnalyticsRepository:
@@ -74,8 +75,8 @@ class AnalyticsRepository:
 
             return session.exec(stmt).fetchall()
 
-    def get_phoneme_names(self) -> Sequence[Tuple[int, str, str]]:
+    def get_phoneme_names(self) -> Sequence[Tuple[int, str, Sequence[PhonemeRespelling]]]:
         with Session(engine) as session:
-            stmt = select(Phoneme.id, Phoneme.ipa, Phoneme.respelling).distinct()
+            stmt = select(Phoneme.id, Phoneme.ipa, Phoneme.respellings).distinct()
 
             return session.exec(stmt).fetchall()
