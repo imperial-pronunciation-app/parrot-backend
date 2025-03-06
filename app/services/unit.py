@@ -74,11 +74,14 @@ class UnitService:
         worst_phonemes = sorted(phoneme_difficulties.items(), key=lambda x: x[1], reverse=True)[:10]
         
         # 2. For each phoneme, find a word containing that phoneme
+        # Restrict to the same language as the unit
         words = []
         for phoneme_id, _ in worst_phonemes:
             phoneme = self._uow.phonemes.get_by_id(phoneme_id)
             if phoneme.words:
-                words.append(choice(phoneme.words))
+                word_options = [word for word in phoneme.words if word.language_id == unit.language_id]
+                if word_options:
+                    words.append(choice(word_options))
         
         # 3. Create a RecapLesson, containing exercises for each of those words
         lesson = self._uow.lessons.upsert(Lesson(
