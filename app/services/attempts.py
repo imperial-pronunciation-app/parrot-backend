@@ -130,12 +130,14 @@ class AttemptService:
 
         # 4. Generate recap lesson if this is the last exercise of the last lesson
         unit_service = UnitService(uow)
-        unit = uow.basic_lessons.get_by_id(exercise.lesson_id).unit
-        if (
-            unit_service.basic_lessons_completed_by(unit, user)
-            and uow.recap_lessons.find_recap_by_user_id_and_unit_id(user.id, unit.id) is None
-        ):
-            unit_service.generate_recap_lesson(unit, user)
+        basic_lesson = uow.basic_lessons.find_by_id(exercise.lesson_id)
+        if basic_lesson is not None:
+            unit = basic_lesson.unit
+            if (
+                unit_service.basic_lessons_completed_by(unit, user)
+                and uow.recap_lessons.find_recap_by_user_id_and_unit_id(user.id, unit.id) is None
+            ):
+                unit_service.generate_recap_lesson(unit, user)
 
         return ExerciseAttemptResponse(
             success=True,
