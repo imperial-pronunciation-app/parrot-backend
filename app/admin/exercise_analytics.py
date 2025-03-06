@@ -15,5 +15,5 @@ class ExerciseAnalyticsDashboard(BaseView):
         return await self.templates.TemplateResponse(
             request,
             "admin/analytics.jinja2",
-            context={"chart_data": exercise_data, "chart_title": "Exercise Analytics", "chart_x_label": "Exercises"},
+            context={"chart_data": exercise_data, "chart_title": "Exercise Analytics", "chart_x_label": "Exercises", "chart_y_label": "Number of Calls"},
         )
