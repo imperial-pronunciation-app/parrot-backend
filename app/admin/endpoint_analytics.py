@@ -15,5 +15,10 @@ class AnalyticsDashboard(BaseView):
         return await self.templates.TemplateResponse(
             request,
             "admin/analytics.jinja2",
-            context={"chart_data": chart_data, "chart_title": "API Analytics", "chart_x_label": "Endpoints"},
+            context={
+                "chart_data": chart_data,
+                "chart_title": "API Analytics",
+                "chart_x_label": "Endpoints",
+                "chart_y_label": "Number of Calls",
+            },
         )

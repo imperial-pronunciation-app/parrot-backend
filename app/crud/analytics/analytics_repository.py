@@ -2,11 +2,14 @@ from typing import Any, Sequence, Tuple
 
 from sqlmodel import Session, col, func, select
 
+from app.crud.unit_of_work import UnitOfWork
 from app.database import engine
 from app.models.analytics.analytics import EndpointAnalytics
 from app.models.attempt import Attempt
 from app.models.exercise import Exercise
 from app.models.exercise_attempt import ExerciseAttempt
+from app.models.exercise_attempt_phoneme_link import ExerciseAttemptPhonemeLink
+from app.models.phoneme import Phoneme
 
 
 class AnalyticsRepository:
@@ -42,18 +45,37 @@ class AnalyticsRepository:
             result = session.exec(stmt).fetchall()
             return result
 
-    def get_exercise_difficulty_analytics(self) -> Sequence[Tuple[int, float, int]]:
+    def get_exercise_difficulty_analytics(self) -> Sequence[Tuple[int, float]]:
         with Session(engine) as session:
             stmt = (
                 select(
                     Exercise.id,
                     func.avg(Attempt.score).label("average_score"),
-                    func.count(col(Attempt.id)).label("attempt_count"),
                 )
                 .join(ExerciseAttempt, col(ExerciseAttempt.exercise_id) == col(Exercise.id))
                 .join(Attempt, col(Attempt.id) == col(ExerciseAttempt.id))
                 .group_by(col(Exercise.id))
                 .order_by("average_score")  # Order by difficulty (lower scores first)
             )
+
+            return session.exec(stmt).fetchall()
+
+    def get_exercise_words(self) -> Sequence[Tuple[int, str]]:
+        with Session(engine) as session, UnitOfWork(session) as uow:
+            res = uow.exercises.all()
+            return [(exercise.id, exercise.word.text) for exercise in res]
+
+    def get_phoneme_difficulty_analytics(self) -> Sequence[Tuple[int | None, int | None]]:
+        with Session(engine) as session:
+            stmt = select(
+                col(ExerciseAttemptPhonemeLink.expected_phoneme_id),
+                col(ExerciseAttemptPhonemeLink.actual_phoneme_id),
+            )
+
+            return session.exec(stmt).fetchall()
+
+    def get_phoneme_names(self) -> Sequence[Tuple[int, str, str]]:
+        with Session(engine) as session:
+            stmt = select(Phoneme.id, Phoneme.ipa, Phoneme.respelling).distinct()
 
             return session.exec(stmt).fetchall()

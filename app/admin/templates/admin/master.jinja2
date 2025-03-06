@@ -49,6 +49,12 @@
                                 </span>
                                 <span class="nav-link-title">Exercise Difficulty Analytics</span>
                             </a>
+                            <a class="nav-link {% if request.path == '/admin/phoneme-difficulty-analytics' %}active{% endif %}" href="{{ url_for('admin:phoneme_difficulty_analytics') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <i class="fa fa-chart-line"></i>
+                                </span>
+                                <span class="nav-link-title">Phoneme Difficulty Analytics</span>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" class="nav-item" href="{{ url_for('admin:index') }}">
