@@ -45,7 +45,7 @@ def test_reset_leaderboard(test_user: User, auth_client: TestClient, uow: UnitOf
     assert response.status_code == 200
     json = response.json()
     assert json["league"] == League.SILVER # Promotion
-    assert json["leaders"] == json["user_position"] == [{"id": test_user.id, "rank": 1, "display_name": test_user.display_name, "xp": expected_xp}]
+    assert json["leaders"] == json["user_position"] == [{"id": test_user.id, "rank": 1, "display_name": test_user.display_name, "xp": expected_xp, "avatar": test_user.avatar}]
 
 
 def test_get_leaderboard(test_user: User, auth_client: TestClient, make_leaderboard_users: LeaderboardUsersFactory) -> None:
@@ -62,14 +62,14 @@ def test_get_leaderboard(test_user: User, auth_client: TestClient, make_leaderbo
     email_to_id = {link.user.email: link.user_id for link in leaderboard_users}
 
     assert json["leaders"] == [
-        {"id": email_to_id[user_details[0]["email"]], "rank": 1, "display_name": user_details[0]["display_name"], "xp": user_details[0]["xp"]},
-        {"id": email_to_id[user_details[1]["email"]], "rank": 2, "display_name": user_details[1]["display_name"], "xp": user_details[1]["xp"]},
-        {"id": email_to_id[user_details[2]["email"]], "rank": 3, "display_name": user_details[2]["display_name"], "xp": user_details[2]["xp"]},
+        {"id": email_to_id[user_details[0]["email"]], "rank": 1, "display_name": user_details[0]["display_name"], "xp": user_details[0]["xp"], "avatar": leaderboard_users[0].user.avatar},
+        {"id": email_to_id[user_details[1]["email"]], "rank": 2, "display_name": user_details[1]["display_name"], "xp": user_details[1]["xp"], "avatar": leaderboard_users[1].user.avatar},
+        {"id": email_to_id[user_details[2]["email"]], "rank": 3, "display_name": user_details[2]["display_name"], "xp": user_details[2]["xp"], "avatar": leaderboard_users[2].user.avatar},
     ]
     assert json["user_position"] == [
-        {"id": email_to_id[user_details[3]["email"]], "rank": 4, "display_name": user_details[3]["display_name"], "xp": user_details[3]["xp"]},
-        {"id": email_to_id[user_details[4]["email"]], "rank": 5, "display_name": user_details[4]["display_name"], "xp": user_details[4]["xp"]},
-        {"id": test_user.id, "rank": 6, "display_name": test_user.display_name, "xp": 0},
+        {"id": email_to_id[user_details[3]["email"]], "rank": 4, "display_name": user_details[3]["display_name"], "xp": user_details[3]["xp"], "avatar": leaderboard_users[3].user.avatar},
+        {"id": email_to_id[user_details[4]["email"]], "rank": 5, "display_name": user_details[4]["display_name"], "xp": user_details[4]["xp"], "avatar": leaderboard_users[4].user.avatar},
+        {"id": test_user.id, "rank": 6, "display_name": test_user.display_name, "xp": 0, "avatar": test_user.avatar},
     ]
 
 

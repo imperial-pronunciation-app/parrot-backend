@@ -1,17 +1,17 @@
-from dataclasses import dataclass
 from typing import List
 
 from pydantic import BaseModel
 
 from app.models.leaderboard_user_link import League
+from app.models.user import Avatar
 
 
-@dataclass
-class LeaderboardEntry:
+class LeaderboardEntry(BaseModel):
     id: int
     rank: int
     display_name: str
     xp: int
+    avatar: Avatar
 
 
 class LeaderboardResponse(BaseModel):

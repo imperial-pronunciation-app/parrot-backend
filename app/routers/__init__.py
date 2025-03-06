@@ -4,7 +4,6 @@ from .auth import router as auth_router
 from .exercises import router as exercises_router
 from .languages import router as languages_router
 from .leaderboard import router as leaderboard_router
-from .league import router as league_router
 from .lessons import router as lessons_router
 from .units import router as units_router
 from .users import router as users_router
@@ -21,5 +20,4 @@ routers = [
     units_router,
     word_of_day_router,
     languages_router,
-    league_router,
 ]

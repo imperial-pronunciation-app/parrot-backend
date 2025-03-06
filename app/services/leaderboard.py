@@ -41,7 +41,13 @@ class LeaderboardService:
     
     def _leaderboard_entry_from_leaderboard_user_id_and_rank(self, leaderboard_user_id: int, rank: int) -> LeaderboardEntry:
         leaderboard_user = self._uow.leaderboard_users.get_by_id(leaderboard_user_id)
-        return LeaderboardEntry(leaderboard_user_id, rank, leaderboard_user.user.display_name, leaderboard_user.xp)
+        return LeaderboardEntry(
+            id=leaderboard_user_id,
+            rank=rank,
+            display_name=leaderboard_user.user.display_name,
+            xp=leaderboard_user.xp,
+            avatar=leaderboard_user.user.avatar,
+        )
     
     def set_users_new_league(self, leaderboard_users: Sequence[LeaderboardUserLink], new_league: League) -> Sequence[LeaderboardUserLink]:
         """Should only be used for testing"""
