@@ -1,5 +1,4 @@
 import os
-from typing import Dict
 
 import rollbar
 from fastapi import FastAPI
@@ -35,11 +34,6 @@ admin = Admin(app, engine, authentication_backend=AdminAuth(), templates_dir=tem
 
 for view in views:
     admin.add_view(view)
-
-
-@app.get("/")
-def read_home() -> Dict[str, str]:  # would be a Pydantic return type normally
-    return {"Hello": "James"}
 
 
 for router in routers:
