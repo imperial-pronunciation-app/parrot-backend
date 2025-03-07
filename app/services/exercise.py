@@ -7,6 +7,8 @@ from app.services.word import WordService
 
 
 class ExerciseService:
+    MINIMUM_SCORE = 50
+
     def __init__(self, uow: UnitOfWork):
         self._uow = uow
 
@@ -22,9 +24,12 @@ class ExerciseService:
         if exercise_attempts == []:
             return False
         best_attempt = max(exercise_attempts, key=lambda exercise_attempt: exercise_attempt.attempt.score)
-        return best_attempt.attempt.score >= 50 or len(exercise_attempts) > 1
+        return best_attempt.attempt.score >= ExerciseService.MINIMUM_SCORE or len(exercise_attempts) > 1
     
     def get_xp_gain(self, exercise: Exercise, user_id: int, score: int) -> int:
+        if score < ExerciseService.MINIMUM_SCORE:
+            return 0
+        
         max_score = self._uow.exercise_attempts.max_score_for_exercise(
             user_id=user_id,
             exercise_id=exercise.id
