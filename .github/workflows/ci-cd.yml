@@ -134,7 +134,7 @@ jobs:
         run: |
           for i in {1..5}; do
 
-            if curl -s --head  --request GET https://pronunciation-app-backend.doc.ic.ac.uk | grep "200" > /dev/null; then 
+            if curl -s --head  --request GET https://pronunciation-app-backend.doc.ic.ac.uk/api/v1/languages | grep "200" > /dev/null; then 
 
             echo "Application is up and running!"
             exit 0
