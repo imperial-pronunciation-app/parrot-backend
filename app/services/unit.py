@@ -71,7 +71,7 @@ class UnitService:
                         if not expected and actual:
                             phoneme_difficulties[actual.id] = phoneme_difficulties.get(actual.id, 0) + 0.5
         
-        worst_phonemes = sorted(phoneme_difficulties.items(), key=lambda x: x[1], reverse=True)[:10]
+        worst_phonemes = sorted(phoneme_difficulties.items(), key=lambda x: x[1], reverse=True)[:5]
         
         # 2. For each phoneme, find a word containing that phoneme
         # Restrict to the same language as the unit
