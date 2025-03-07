@@ -39,8 +39,6 @@ def read_home() -> Dict[str, str]:  # would be a Pydantic return type normally
     return {"Hello": "James"}
 
 
-
-
 for router in routers:
     app.include_router(router)
 
