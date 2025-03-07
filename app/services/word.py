@@ -9,9 +9,10 @@ class WordService:
         self._uow = uow
         
     def to_public_with_phonemes(self, word: Word) -> WordPublicWithPhonemes:
+        phonemes = self._uow.phonemes.find_phonemes_by_word(word.id)
         phoneme_service = PhonemeService(self._uow)
         return WordPublicWithPhonemes(
             id=word.id,
             text=word.text,
-            phonemes=[phoneme_service.to_phoneme_public(p, word.language_id) for p in word.phonemes]
+            phonemes=[phoneme_service.to_phoneme_public(p, word.language_id) for p in phonemes]
         )
