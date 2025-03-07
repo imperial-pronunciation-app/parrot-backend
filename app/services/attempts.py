@@ -16,7 +16,7 @@ from app.models.user import User
 from app.models.word import Word
 from app.models.word_of_day_attempt import WordOfDayAttempt
 from app.schemas.aligned_phonemes import AlignedPhonemes
-from app.schemas.attempt import AttemptResponse, ExerciseAttemptResponse
+from app.schemas.attempt import AttemptFeedback, AttemptResponse, ExerciseAttemptResponse
 from app.schemas.model_api import PronunciationInferenceResponse
 from app.services.exercise import ExerciseService
 from app.services.pronunciation import PronunciationService
@@ -56,8 +56,12 @@ class AttemptService:
         model_response = self.dispatch_to_model(wav_file, word.language)
         if not model_response.success:
             return None
-        inferred_words = model_response.words
-        inferred_phoneme_strings = model_response.phonemes
+        
+        feedback = model_response.feedback
+        assert feedback is not None
+
+        inferred_words = feedback.words
+        inferred_phoneme_strings = feedback.phonemes
         aligned_phonemes, score = PronunciationService(self._uow).evaluate_pronunciation(word, inferred_phoneme_strings, inferred_words)
         return aligned_phonemes, score
 
@@ -93,12 +97,8 @@ class AttemptService:
             os.remove(wav_file)
             return ExerciseAttemptResponse(
                 success=False,
-                recording_id=None,
-                score=None,
-                phonemes=None,
-                xp_gain=None,
-                exercise_is_completed=exercise_service.is_completed_by(exercise, user),
-                xp_streak_boost=None
+                feedback=None,
+                exercise_is_completed=exercise_service.is_completed_by(exercise, user)
             )
 
         aligned_phonemes, score = feedback
@@ -141,12 +141,14 @@ class AttemptService:
 
         return ExerciseAttemptResponse(
             success=True,
-            recording_id=recording_id,
-            score=score,
-            phonemes=aligned_phonemes,
-            xp_gain=xp_gain,
+            feedback=AttemptFeedback( 
+                recording_id=recording_id,
+                score=score,
+                phonemes=aligned_phonemes,
+                xp_gain=xp_gain,
+                xp_streak_boost=streak_boost
+            ),
             exercise_is_completed=exercise_service.is_completed_by(exercise, user),
-            xp_streak_boost=streak_boost
         )
 
     async def post_word_of_day_attempt(
@@ -166,11 +168,7 @@ class AttemptService:
             os.remove(wav_file)
             return AttemptResponse(
                 success=False,
-                recording_id=None,
-                score=None,
-                phonemes=None,
-                xp_gain=None,
-                xp_streak_boost=None
+                feedback=None
             )
 
         aligned_phonemes, score = feedback
@@ -185,9 +183,11 @@ class AttemptService:
 
         return AttemptResponse(
             success=True,
-            recording_id=recording_id,
-            score=score,
-            phonemes=aligned_phonemes,
-            xp_gain=xp_gain,
-            xp_streak_boost=streak_boost
+            feedback=AttemptFeedback(
+                recording_id=recording_id,
+                score=score,
+                phonemes=aligned_phonemes,
+                xp_gain=xp_gain,
+                xp_streak_boost=streak_boost
+            )
         )

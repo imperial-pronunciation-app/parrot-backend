@@ -16,7 +16,8 @@ def test_word_of_day_attempts(
     word_of_day = make_word_of_day(text="software", language=language)
     test_word = word_of_day.word
     similarity = 100
-    xp_gain = 1.5 * similarity
+    xp_gain = similarity
+    xp_streak_boost = similarity * 0.1
     recording_id = 1
 
     # mock_os_remove = mocker.patch("os.remove")
@@ -24,11 +25,13 @@ def test_word_of_day_attempts(
     mocker.patch("app.routers.attempts.AttemptService", return_value=mock_service)
     mock_service.post_word_of_day_attempt.return_value = {
         "success": True,
-        "score": similarity,
-        "xp_gain": xp_gain,
-        "recording_id": recording_id,
-        "phonemes": [],
-        "xp_streak_boost": None
+        "feedback": {
+            "score": similarity,
+            "xp_gain": xp_gain,
+            "recording_id": recording_id,
+            "phonemes": [],
+            "xp_streak_boost": xp_streak_boost
+        }
     }
 
     wav_file_path = f"tests/assets/{test_word.text}.wav"
@@ -37,9 +40,10 @@ def test_word_of_day_attempts(
 
         recording_response = auth_client.post("/api/v1/word_of_day/attempts", files=files)
     assert recording_response.status_code == 200
-    data = recording_response.json()
-    assert data["score"] == similarity
-    assert data["xp_gain"] == xp_gain
-    assert data["recording_id"] == recording_id
+    feedback = recording_response.json()["feedback"]
+    assert feedback["score"] == similarity
+    assert feedback["xp_gain"] == xp_gain
+    assert feedback["xp_streak_boost"] == xp_streak_boost
+    assert feedback["recording_id"] == recording_id
 
     mock_service.post_word_of_day_attempt.assert_called_once()

@@ -22,13 +22,20 @@ def test_successful_request(uow: UnitOfWork, make_word: WordFactory) -> None:
     rsp = responses.Response(
         method="POST",
         url=f"{os.environ.get('MODEL_API_URL', '')}/api/v1/eng/pronunciation_inference",
-        json={"success": True, "phonemes": phonemes, "words": [word.text]},
+        json={
+            "success": True,
+            "feedback": {
+                "phonemes": phonemes,
+                "words": [word.text]
+            }
+        },
     )
     responses.add(rsp)
 
     model_response = AttemptService(uow).dispatch_to_model(test_wav_filename, word.language)
-    assert model_response.phonemes == phonemes
-    assert model_response.words == [word.text]
+    assert model_response.feedback is not None
+    assert model_response.feedback.phonemes == phonemes
+    assert model_response.feedback.words == [word.text]
 
 @responses.activate
 def test_unsuccessful_request(uow: UnitOfWork, make_word: WordFactory) -> None:
@@ -39,7 +46,7 @@ def test_unsuccessful_request(uow: UnitOfWork, make_word: WordFactory) -> None:
     rsp = responses.Response(
         method="POST",
         url=f"{os.environ.get('MODEL_API_URL', '')}/api/v1/eng/pronunciation_inference",
-        json={"success": False, "phonemes": [], "words": []},
+        json={"success": False, "feedback": None},
     )
     responses.add(rsp)
 
