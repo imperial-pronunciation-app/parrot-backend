@@ -17,7 +17,7 @@ from app.models.word import Word
 from app.models.word_of_day_attempt import WordOfDayAttempt
 from app.schemas.aligned_phonemes import AlignedPhonemes
 from app.schemas.attempt import AttemptResponse, ExerciseAttemptResponse
-from app.schemas.model_api import InferWordPhonemesResponse
+from app.schemas.model_api import PronunciationInferenceResponse
 from app.services.exercise import ExerciseService
 from app.services.pronunciation import PronunciationService
 from app.services.unit import UnitService
@@ -39,14 +39,14 @@ class AttemptService:
             f.write(audio_bytes)
         return filename
 
-    def dispatch_to_model(self, wav_file: str, lang: Language) -> InferWordPhonemesResponse:
+    def dispatch_to_model(self, wav_file: str, lang: Language) -> PronunciationInferenceResponse:
         with open(wav_file, "rb") as f:
             files = {"audio_file": f}
-            model_response = requests.post(f"{get_settings().MODEL_API_URL}/api/v1/{lang.code}/infer_word_phonemes", files=files)
+            model_response = requests.post(f"{get_settings().MODEL_API_URL}/api/v1/{lang.code}/pronunciation_inference", files=files)
 
         model_response.raise_for_status()
 
-        model_data = InferWordPhonemesResponse.model_validate(model_response.json())
+        model_data = PronunciationInferenceResponse.model_validate(model_response.json())
 
         return model_data
 
@@ -60,7 +60,7 @@ class AttemptService:
         inferred_phoneme_strings = model_response.phonemes
         aligned_phonemes, score = PronunciationService(self._uow).evaluate_pronunciation(word, inferred_phoneme_strings, inferred_words)
         return aligned_phonemes, score
-        
+
 
     def save_to_s3(self, wav_file: str) -> str:
         s3_key = upload_wav_to_s3(wav_file)
@@ -83,7 +83,7 @@ class AttemptService:
         exercise = uow.exercises.find_by_id(id=exercise_id)
         if not exercise:
             raise HTTPException(status_code=404, detail="Exercise not found")
-        
+
         exercise_service = ExerciseService(uow)
 
         # 1. Send .wav file to model for response
@@ -100,7 +100,7 @@ class AttemptService:
                 exercise_is_completed=exercise_service.is_completed_by(exercise, user),
                 xp_streak_boost=None
             )
-        
+
         aligned_phonemes, score = feedback
         attempt_xp = exercise_service.get_xp_gain(exercise=exercise, user_id=user.id, score=score)
         user_service = UserService(uow)
@@ -170,7 +170,7 @@ class AttemptService:
                 xp_gain=None,
                 xp_streak_boost=None
             )
-        
+
         aligned_phonemes, score = feedback
         attempt_xp = WordOfDayService(self._uow).get_xp_gain(word_of_day=word_of_day, user_id=user.id, score=score)
         user_service = UserService(uow)
