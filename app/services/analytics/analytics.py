@@ -43,6 +43,12 @@ class AnalyticsService:
         }
         return chart_data
 
+    def get_exercise_word_from_id(self, exercise_ids: list[str]) -> list[str]:
+        exercise_words = AnalyticsRepository().get_exercise_words()
+        exercise_mapping = {str(exercise_id): word for exercise_id, word in exercise_words}
+        exercise_labels = [f"{exercise_id}: {exercise_mapping[exercise_id]}" for exercise_id in exercise_ids]
+        return exercise_labels
+
     def get_exercise_analytics(self) -> dict:
         results = AnalyticsRepository().get_exercise_analytics()
 
@@ -54,8 +60,10 @@ class AnalyticsService:
         endpoints: list[str] = [str(r[0]) for r in results]
         counts: list[int] = [int(r[1]) for r in results]
 
+        exercise_labels = self.get_exercise_word_from_id(endpoints)
+
         return {
-            "labels": endpoints,
+            "labels": exercise_labels,
             "datasets": [
                 {
                     "label": "# time exercise was attempted",
@@ -73,10 +81,7 @@ class AnalyticsService:
         exercise_ids: list[str] = [str(r[0]) for r in results]
         avg_scores: list[float] = [round(float(r[1]), 2) if r[1] is not None else 0.0 for r in results]
 
-        # Replace the exercise ids with the actual words
-        exercise_words = AnalyticsRepository().get_exercise_words()
-        exercise_mapping = {str(exercise_id): word for exercise_id, word in exercise_words}
-        exercise_labels = [f"{exercise_id}: {exercise_mapping[exercise_id]}" for exercise_id in exercise_ids]
+        exercise_labels = self.get_exercise_word_from_id(exercise_ids)
 
         return {
             "labels": exercise_labels,
