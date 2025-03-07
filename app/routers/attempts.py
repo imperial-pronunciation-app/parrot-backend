@@ -32,3 +32,9 @@ async def post_word_of_day_attempt(
     word_of_day_id = uow.word_of_day.get_word_of_day(user.language_id).id
     resp = await attempt_service.post_word_of_day_attempt(audio_file, word_of_day_id, uow, user)
     return resp
+
+
+@router.get("/test/attempts/500")
+async def test_500() -> None:
+    """Test endpoint that returns a 500 error"""
+    raise Exception("This is a test 500 error")
