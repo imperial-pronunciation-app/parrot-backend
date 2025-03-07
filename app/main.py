@@ -38,6 +38,9 @@ for view in views:
 def read_home() -> Dict[str, str]:  # would be a Pydantic return type normally
     return {"Hello": "James"}
 
+@app.get("/test-rollbar")
+def test_rollbar() -> float:
+    return 1 / 0
 
 for router in routers:
     app.include_router(router)
