@@ -54,8 +54,12 @@ class AnalyticsService:
         endpoints: list[str] = [str(r[0]) for r in results]
         counts: list[int] = [int(r[1]) for r in results]
 
+        exercise_words = AnalyticsRepository().get_exercise_words()
+        exercise_mapping = {str(exercise_id): word for exercise_id, word in exercise_words}
+        exercise_labels = [f"{exercise_id}: {exercise_mapping[exercise_id]}" for exercise_id in endpoints]
+
         return {
-            "labels": endpoints,
+            "labels": exercise_labels,
             "datasets": [
                 {
                     "label": "# time exercise was attempted",

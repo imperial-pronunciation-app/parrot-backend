@@ -19,7 +19,9 @@ class AdminAuth(AuthenticationBackend):
         password = form.get("password")
         if (
             username == self._admin_username
-            and self._password_helper.verify_and_update(password, self._admin_password_hash)[0]
+            and self._password_helper.verify_and_update(
+                password, self._admin_password_hash.strip("'").strip("`").strip("’")
+            )[0]
         ):
             request.session.update({"authenticated": True})
             return True
