@@ -71,16 +71,31 @@
     "keyboard": ["k", "i", "b", "ɔ", "ɹ", "d"],
     "mouse": ["m", "ɑ", "ʊ", "s"],
     "computer": ["k", "ə", "m", "p", "j", "u", "t", "ɹ"],
-    "parrot": ["p", "æ", "ɹ", "ə", "t"]
+    "parrot": ["p", "æ", "ɹ", "ə", "t"],
+    "hacker": ["h", "æ", "k", "ə", "ɹ"]
   },
   "units": [
+    {
+      "name": "Tech Terminology",
+      "description": "Terms used in the tech industry",
+      "lessons": [
+        {
+          "title": "Computer Accessories",
+          "exercises": ["keyboard", "mouse", "computer"]
+        },
+        {
+          "title": "Programming Terms",
+          "exercises": ["compiler", "hacker", "hardware", "software"]
+        }
+      ]
+    },
     {
       "name": "Short Vowel Sound",
       "description": "Focus on /æ/",
       "lessons": [
         {
           "title": "Listening Discrimination Pairs",
-          "exercises": ["cat", "cut", "hat", "hut", "bat", "bet", "pan", "pen"]
+          "exercises": ["cat", "cut", "hat", "hut", "bat", "bet"]
         },
         {
           "title": "Repetition Practice Words",
@@ -155,30 +170,6 @@
         {
           "title": "Calendar Words",
           "exercises": ["february", "wednesday", "specifically"]
-        }
-      ]
-    },
-    {
-      "name": "Tech Terminology",
-      "description": "Terms used in the tech industry",
-      "lessons": [
-        {
-          "title": "Programming Terms",
-          "exercises": ["compiler", "hardware", "software"]
-        },
-        {
-          "title": "Computer Accessories",
-          "exercises": ["keyboard", "mouse", "computer"]
-        }
-      ]
-    },
-    {
-      "name": "Short Unit",
-      "description": "Short unit",
-      "lessons": [
-        {
-          "title": "Short Lesson",
-          "exercises": ["parrot"]
         }
       ]
     }
