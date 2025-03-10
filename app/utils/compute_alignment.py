@@ -21,7 +21,6 @@ def compute_alignment(
 ) -> Tuple[List[Tuple[Optional[T], Optional[T]]], int]:
     """
     Generalized function to align two sequences using dynamic programming.
-    Developed with assistance of ChatGPT (OpenAI).
 
     :param expected: List of expected items.
     :param actual: List of actual items.
